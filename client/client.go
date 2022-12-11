@@ -45,13 +45,24 @@ func SetActivity(activity Activity) error {
 	if !logged {
 		return nil
 	}
+	
+	var Arguments Args
+	
+	if activity {
+		Arguments = Args{
+			os.Getpid(),
+			mapActivity(&activity),
+		}
+	} else {
+		Arguments = Args{
+			os.Getpid(),
+			null,
+		}
+	}
 
 	payload, err := json.Marshal(Frame{
 		"SET_ACTIVITY",
-		Args{
-			os.Getpid(),
-			mapActivity(&activity),
-		},
+		Arguments,
 		getNonce(),
 	})
 
