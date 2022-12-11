@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/hugolgst/rich-go/ipc"
+	"github.com/Haydz6/rich-go/ipc"
 )
 
 var logged bool
@@ -45,10 +45,10 @@ func SetActivity(activity Activity) error {
 	if !logged {
 		return nil
 	}
-	
+
 	var Arguments Args
-	
-	if activity {
+
+	if activity.State != "end" {
 		Arguments = Args{
 			os.Getpid(),
 			mapActivity(&activity),
@@ -56,7 +56,7 @@ func SetActivity(activity Activity) error {
 	} else {
 		Arguments = Args{
 			os.Getpid(),
-			null,
+			nil,
 		}
 	}
 
