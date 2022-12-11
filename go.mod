@@ -1,4 +1,4 @@
-module github.com/hugolgst/rich-go
+module github.com/Haydz6/rich-go
 
 go 1.17
 
