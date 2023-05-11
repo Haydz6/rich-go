@@ -17,8 +17,10 @@ type AuthenticatedStruct struct {
 }
 
 type ReceivedPayloadStruct struct {
-	Evt  string              `json:"evt"`
-	Data AuthenticatedStruct `json:"data"`
+	Evt  string `json:"evt"`
+	Data struct {
+		User AuthenticatedStruct `json:"user"`
+	} `json:"data"`
 }
 
 var logged bool
@@ -60,8 +62,7 @@ func Login(clientid string) error {
 
 				println(Instruction.Evt)
 				if Instruction.Evt == "READY" {
-					Authentication = &Instruction.Data
-					println(Instruction.Data.Username, Instruction.Data.Discriminator)
+					Authentication = &Instruction.Data.User
 					AuthenticationUpdate <- ""
 				}
 			}
