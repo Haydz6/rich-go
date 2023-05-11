@@ -39,6 +39,7 @@ func Read() string {
 	payloadlength, err := socket.Read(buf)
 	if err != nil {
 		Error := err.Error()
+		println(Error)
 		if Error == "The pipe is being closed." {
 			return "Connection Closed"
 		}
