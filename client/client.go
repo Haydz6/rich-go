@@ -45,6 +45,15 @@ func LoginLoop() {
 		if !logged && CachedClientId != "" {
 			Login(CachedClientId)
 		}
+
+		payload, err := json.Marshal(Frame{
+			"",
+			Args{},
+			getNonce(),
+		})
+		if err == nil {
+			CheckForClosure(ipc.Send(1, string(payload)))
+		}
 	}
 }
 
