@@ -24,6 +24,18 @@ func Login(clientid string) error {
 			return err
 		}
 
+		go func() {
+			for {
+				Data := ipc.Read()
+
+				if Data == "Connection Closed" {
+					break
+				}
+
+				println(Data)
+			}
+		}()
+
 		// TODO: Response should be parsed
 		ipc.Send(0, string(payload))
 	}
