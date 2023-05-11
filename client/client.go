@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"sync"
 
 	"github.com/Haydz6/rich-go/ipc"
 )
@@ -25,7 +26,7 @@ type ReceivedPayloadStruct struct {
 
 var logged bool
 var Authentication *AuthenticatedStruct
-var AuthenticationUpdate = make(chan struct{})
+var AuthenticationUpdate = sync.WaitGroup{}
 
 // Login sends a handshake in the socket and returns an error or nil
 func Login(clientid string) error {
@@ -47,7 +48,7 @@ func Login(clientid string) error {
 				if Data == "Connection Closed" {
 					logged = false
 					Authentication = nil
-					AuthenticationUpdate <- struct{}{}
+					AuthenticationUpdate.Done()
 
 					ipc.CloseSocket()
 					break
@@ -63,7 +64,7 @@ func Login(clientid string) error {
 				println(Instruction.Evt)
 				if Instruction.Evt == "READY" {
 					Authentication = &Instruction.Data.User
-					AuthenticationUpdate <- struct{}{}
+					AuthenticationUpdate.Done()
 				}
 			}
 		}()
@@ -79,7 +80,7 @@ func Login(clientid string) error {
 func Logout() {
 	logged = false
 	Authentication = nil
-	AuthenticationUpdate <- struct{}{}
+	AuthenticationUpdate.Done()
 
 	err := ipc.CloseSocket()
 	if err != nil {
