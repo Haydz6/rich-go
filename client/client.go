@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"sync"
+	"time"
 
 	"github.com/Haydz6/rich-go/ipc"
 )
@@ -28,9 +29,39 @@ var logged bool
 var CachedClientId string
 var Authentication *AuthenticatedStruct
 var AuthenticationUpdate = sync.WaitGroup{}
+var LogLooping bool
 
 // Login sends a handshake in the socket and returns an error or nil
+
+func LoginLoop() {
+	if LogLooping {
+		return
+	}
+
+	LogLooping = true
+	for {
+		time.Sleep(time.Second * 5)
+
+		if !logged && CachedClientId != "" {
+			Login(CachedClientId)
+		}
+	}
+}
+
+func CheckForClosure(Result string) bool {
+	if Result == "The pipe is being closed." {
+		logged = false
+		Authentication = nil
+		AuthenticationUpdate.Done()
+
+		ipc.CloseSocket()
+		return true
+	}
+	return false
+}
+
 func Login(clientid string) error {
+	go LoginLoop()
 	CachedClientId = clientid
 	if !logged {
 		payload, err := json.Marshal(Handshake{"1", clientid})
@@ -43,37 +74,20 @@ func Login(clientid string) error {
 			return err
 		}
 
-		go func() {
-			for {
-				Data := ipc.Read()
-
-				if Data == "Connection Closed" {
-					logged = false
-					Authentication = nil
-					AuthenticationUpdate.Done()
-
-					ipc.CloseSocket()
-					break
-				}
-
-				var Instruction ReceivedPayloadStruct
-				err := json.Unmarshal([]byte(Data), &Instruction)
-
-				if err != nil {
-					continue
-				}
-
-				println(Instruction.Evt)
-				if Instruction.Evt == "READY" {
-					Authentication = &Instruction.Data.User
+		// TODO: Response should be parsed
+		Result := ipc.Send(0, string(payload))
+		if !CheckForClosure(Result) {
+			var Body ReceivedPayloadStruct
+			JSONErr := json.Unmarshal([]byte(Result), &Body)
+			if JSONErr == nil {
+				if Body.Evt == "READY" {
+					Authentication = &Body.Data.User
 					AuthenticationUpdate.Done()
 				}
 			}
-		}()
-
-		// TODO: Response should be parsed
-		ipc.Send(0, string(payload))
+		}
 	}
+
 	logged = true
 
 	return nil
@@ -123,7 +137,7 @@ func SetActivity(activity Activity) error {
 	}
 
 	// TODO: Response should be parsed
-	ipc.Send(1, string(payload))
+	CheckForClosure(ipc.Send(1, string(payload)))
 	return nil
 }
 
