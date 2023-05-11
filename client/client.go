@@ -25,7 +25,7 @@ type ReceivedPayloadStruct struct {
 
 var logged bool
 var Authentication *AuthenticatedStruct
-var AuthenticationUpdate = make(chan string)
+var AuthenticationUpdate = make(chan struct{})
 
 // Login sends a handshake in the socket and returns an error or nil
 func Login(clientid string) error {
@@ -47,7 +47,7 @@ func Login(clientid string) error {
 				if Data == "Connection Closed" {
 					logged = false
 					Authentication = nil
-					AuthenticationUpdate <- ""
+					AuthenticationUpdate <- struct{}{}
 
 					ipc.CloseSocket()
 					break
@@ -63,7 +63,7 @@ func Login(clientid string) error {
 				println(Instruction.Evt)
 				if Instruction.Evt == "READY" {
 					Authentication = &Instruction.Data.User
-					AuthenticationUpdate <- ""
+					AuthenticationUpdate <- struct{}{}
 				}
 			}
 		}()
@@ -79,7 +79,7 @@ func Login(clientid string) error {
 func Logout() {
 	logged = false
 	Authentication = nil
-	AuthenticationUpdate <- ""
+	AuthenticationUpdate <- struct{}{}
 
 	err := ipc.CloseSocket()
 	if err != nil {
