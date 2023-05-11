@@ -39,7 +39,6 @@ func Read() string {
 	payloadlength, err := socket.Read(buf)
 	if err != nil {
 		Error := err.Error()
-		println(Error)
 		if Error == "The pipe is being closed." {
 			return "Connection Closed"
 		}
@@ -55,7 +54,7 @@ func Read() string {
 }
 
 // Send opcode and payload to the unix socket
-func Send(opcode int, payload string) string {
+func Send(opcode int, payload string) {
 	buf := new(bytes.Buffer)
 
 	err := binary.Write(buf, binary.LittleEndian, int32(opcode))
@@ -73,6 +72,4 @@ func Send(opcode int, payload string) string {
 	if err != nil {
 		fmt.Println(err)
 	}
-
-	return Read()
 }

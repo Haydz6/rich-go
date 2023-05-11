@@ -8,7 +8,9 @@ import (
 )
 
 func main() {
-	err := client.Login("DISCORD_APP_ID")
+	client.AuthenticationUpdate.Add(1)
+	err := client.Login("1105722413905346660")
+	println("past login")
 	if err != nil {
 		panic(err)
 	}

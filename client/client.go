@@ -25,11 +25,13 @@ type ReceivedPayloadStruct struct {
 }
 
 var logged bool
+var CachedClientId string
 var Authentication *AuthenticatedStruct
 var AuthenticationUpdate = sync.WaitGroup{}
 
 // Login sends a handshake in the socket and returns an error or nil
 func Login(clientid string) error {
+	CachedClientId = clientid
 	if !logged {
 		payload, err := json.Marshal(Handshake{"1", clientid})
 		if err != nil {
@@ -90,7 +92,10 @@ func Logout() {
 
 func SetActivity(activity Activity) error {
 	if !logged {
-		return nil
+		if CachedClientId == "" {
+			return nil
+		}
+		Login(CachedClientId)
 	}
 
 	var Arguments Args
