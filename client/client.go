@@ -24,7 +24,7 @@ type ReceivedPayloadStruct struct {
 
 var logged bool
 var Authentication *AuthenticatedStruct
-var AuthenticationUpdate *sync.Cond = &sync.Cond{}
+var AuthenticationUpdate = sync.Cond{}
 
 // Login sends a handshake in the socket and returns an error or nil
 func Login(clientid string) error {
