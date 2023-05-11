@@ -9,7 +9,20 @@ import (
 	"github.com/Haydz6/rich-go/ipc"
 )
 
+type AuthenticatedStruct struct {
+	Id            string `json:"id"`
+	Username      string `json:"username"`
+	Discriminator string `json:"discriminator"`
+	Avatar        string `json:"avatar"`
+}
+
+type ReceivedPayloadStruct struct {
+	Evt  string              `json:"evt"`
+	Data AuthenticatedStruct `json:"data"`
+}
+
 var logged bool
+var Authentication *AuthenticatedStruct
 
 // Login sends a handshake in the socket and returns an error or nil
 func Login(clientid string) error {
@@ -29,10 +42,23 @@ func Login(clientid string) error {
 				Data := ipc.Read()
 
 				if Data == "Connection Closed" {
+					logged = false
+					Authentication = nil
+
+					ipc.CloseSocket()
 					break
 				}
 
-				println(Data)
+				var Instruction ReceivedPayloadStruct
+				err := json.Unmarshal([]byte(Data), &Instruction)
+
+				if err != nil {
+					continue
+				}
+
+				if Instruction.Evt == "READY" {
+					Authentication = &Instruction.Data
+				}
 			}
 		}()
 
@@ -46,6 +72,7 @@ func Login(clientid string) error {
 
 func Logout() {
 	logged = false
+	Authentication = nil
 
 	err := ipc.CloseSocket()
 	if err != nil {
