@@ -61,6 +61,7 @@ func Login(clientid string) error {
 				println(Instruction.Evt)
 				if Instruction.Evt == "READY" {
 					Authentication = &Instruction.Data
+					println(Instruction.Data.Username, Instruction.Data.Discriminator)
 					AuthenticationUpdate <- ""
 				}
 			}
