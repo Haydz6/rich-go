@@ -59,6 +59,7 @@ func Login(clientid string) error {
 					continue
 				}
 
+				println(Instruction.Evt)
 				if Instruction.Evt == "READY" {
 					Authentication = &Instruction.Data
 					AuthenticationUpdate.Broadcast()
