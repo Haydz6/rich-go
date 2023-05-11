@@ -38,6 +38,7 @@ func Read() string {
 	buf := make([]byte, 512)
 	payloadlength, err := socket.Read(buf)
 	if err != nil {
+		println(err.Error())
 		return "Connection Closed"
 	}
 
