@@ -24,7 +24,7 @@ func main() {
 	now := time.Now()
 
 	for {
-		err = client.SetActivity(client.Activity{
+		err = client.SetActivity(&client.Activity{
 			State:      "Heyy!!!",
 			Details:    "I'm running on rich-go :)",
 			LargeImage: "largeimageid",
