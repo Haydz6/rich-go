@@ -113,7 +113,7 @@ func Logout() {
 	}
 }
 
-func SetActivity(activity Activity) error {
+func SetActivity(activity *Activity) error {
 	if !logged {
 		if CachedClientId == "" {
 			return nil
@@ -123,10 +123,10 @@ func SetActivity(activity Activity) error {
 
 	var Arguments Args
 
-	if activity.State != "end" {
+	if activity != nil {
 		Arguments = Args{
 			os.Getpid(),
-			mapActivity(&activity),
+			mapActivity(activity),
 		}
 	} else {
 		Arguments = Args{
